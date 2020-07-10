@@ -30,6 +30,8 @@ def plot_node(node_txt, center_pt, parent_pt, node_type):
                  / \
                 B   C
 """
+
+
 def get_num_leafs(my_tree):
     """
     函数作用：获取决策树的叶节点数目
