@@ -2,7 +2,7 @@ import numpy as np
 
 
 class KMeansClassifier():
-	"""初始化KMeansClassifier类"""
+    """初始化KMeansClassifier类"""
     def __init__(self, k=3, initCent='random', max_iter=500):
         # 类的成员数据(变量前用下划线)
         self._k = k # 中心点
