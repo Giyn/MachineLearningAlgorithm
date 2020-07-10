@@ -73,6 +73,7 @@ class KMeansClassifier():
         self._labels = self._clusterAssment[:,0]
         self._sse = sum(self._clusterAssment[:,1])
     
+    
     def predict(self, X):
         """根据聚类结果，预测新输入数据所属的族"""
         if not isinstance(X,np.ndarray):
