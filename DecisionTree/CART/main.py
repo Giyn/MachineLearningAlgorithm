@@ -1,6 +1,13 @@
-#-*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 18 20:08:04 2020
+
+@author: Giyn
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 def loadDataSet(fileName):
 	"""
@@ -9,10 +16,6 @@ def loadDataSet(fileName):
 	    fileName - 文件名
 	Returns:
 		dataMat - 数据矩阵
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-09
 	"""
 	dataMat = []
 	fr = open(fileName)
@@ -29,10 +32,6 @@ def plotDataSet(filename):
 		filename - 文件名
 	Returns:
 		无
-	Website:
-		http://www.cuijiahua.com/
-	Modify:
-		2017-11-12
 	"""
 	dataMat = loadDataSet(filename)										#加载数据集
 	n = len(dataMat)													#数据个数
@@ -56,10 +55,6 @@ def binSplitDataSet(dataSet, feature, value):
 	Returns:
 		mat0 - 切分的数据集合0
 		mat1 - 切分的数据集合1
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-12
 	"""
 	mat0 = dataSet[np.nonzero(dataSet[:,feature] > value)[0],:]
 	mat1 = dataSet[np.nonzero(dataSet[:,feature] <= value)[0],:]
@@ -72,10 +67,6 @@ def regLeaf(dataSet):
 	    dataSet - 数据集合
 	Returns:
 		目标变量的均值
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-12
 	"""
 	return np.mean(dataSet[:,-1])
 
@@ -86,10 +77,6 @@ def regErr(dataSet):
 	    dataSet - 数据集合
 	Returns:
 		目标变量的总方差
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-12
 	"""
 	return np.var(dataSet[:,-1]) * np.shape(dataSet)[0]
 
@@ -104,10 +91,6 @@ def chooseBestSplit(dataSet, leafType = regLeaf, errType = regErr, ops = (1,4)):
 	Returns:
 		bestIndex - 最佳切分特征
 		bestValue - 最佳特征值
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-12
 	"""
 	import types
 	#tolS允许的误差下降值,tolN切分的最少样本数
@@ -157,10 +140,6 @@ def createTree(dataSet, leafType = regLeaf, errType = regErr, ops = (1, 4)):
 	    ops - 包含树构建所有其他参数的元组
 	Returns:
 		retTree - 构建的回归树
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-12
 	"""
 	#选择最佳切分特征和特征值
 	feat, val = chooseBestSplit(dataSet, leafType, errType, ops)
@@ -184,10 +163,6 @@ def isTree(obj):
 	    obj - 测试对象
 	Returns:
 		是否是一棵树
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-14
 	"""
 	import types
 	return (type(obj).__name__ == 'dict')
@@ -199,10 +174,6 @@ def getMean(tree):
 	    tree - 树
 	Returns:
 		树的平均值
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-14
 	"""
 	if isTree(tree['right']): tree['right'] = getMean(tree['right'])
 	if isTree(tree['left']): tree['left'] = getMean(tree['left'])
@@ -216,10 +187,6 @@ def prune(tree, testData):
 	    test - 测试集
 	Returns:
 		树的平均值
-	Website:
-	    http://www.cuijiahua.com/
-	Modify:
-	    2017-12-14
 	"""
 	#如果测试集为空,则对树进行塌陷处理
 	if np.shape(testData)[0] == 0: return getMean(tree)

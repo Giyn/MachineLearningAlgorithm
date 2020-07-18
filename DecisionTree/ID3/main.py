@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 18 20:08:04 2020
+
+@author: Giyn
+"""
+
 from math import log
 import operator
 import treePlotter
@@ -7,7 +14,7 @@ def cal_shannon_ent(dateset):
     """
     函数作用：计算给定数据集的香农熵
     :param dateset: 给定的数据集
-    :return: 香农熵
+    :return 信息熵
     """
     # 计算data_set的大小
     num_ents = len(dateset)
@@ -21,13 +28,12 @@ def cal_shannon_ent(dateset):
         if current_label not in label_counts.keys():
             label_counts[current_label] = 0
         label_counts[current_label] += 1
-    # 计算香农熵，并返回
+    # 计算信息熵，并返回
     shannon_ent = 0.0
     for key in label_counts:
         # 计算label_counts[key]的概率
         prob = float(label_counts[key]) / num_ents
-        # 香农熵(信息熵,信息期望值)
-        shannon_ent -= prob * log(prob, 2)
+        shannon_ent -= prob * log(prob, 2) # 信息熵
     return shannon_ent
 
 

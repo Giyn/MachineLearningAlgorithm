@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 18 20:08:04 2020
+
+@author: Giyn
+"""
+
 import matplotlib.pyplot as plt
 
 
@@ -19,17 +26,6 @@ def plot_node(node_txt, center_pt, parent_pt, node_type):
     create_plot.axl.annotate(node_txt, xy=parent_pt, xycoords="axes fraction",
                              xytext=center_pt, textcoords="axes fraction", va="center",
                              ha="center", bbox=node_type, arrowprops=arrow_args)
-
-
-"""
-:Note: 决策树的叶节点，即没有分支的结点，如下图的B,C
-       决策树的叶节点，即决策树的宽度，下图的宽度为2
-       A是决策树的判断结点
-       决策树的深度，即高度，下图的深度为1
-:图例决策时：       A
-                 / \
-                B   C
-"""
 
 
 def get_num_leafs(my_tree):
@@ -59,7 +55,7 @@ def get_tree_depth(my_tree):
     """
     函数作用：获得决策树的深度
     :param my_tree: 给定的决策树
-    :return:
+    :return: 树深
     """
     # 初始化深度
     max_depth = 0
@@ -84,7 +80,7 @@ def retrive_tree(i):
     """
     函数作用：定义树结构，测试树结构函数
     :param i: 树列表的index
-    :return: 返回list[index]
+    :return: list[index]
     """
     list_of_trees = [{'no surfacing': {0: 'no', 1: {'flippers':
                                       {0: 'no', 1: 'yes'}}}},
@@ -156,26 +152,17 @@ def create_plot(in_tree):
     :param in_tree: 决策树
     :return:
     """
-    # 创建窗口
-    fig = plt.figure(1, facecolor='white')
-    # 清空绘图区
-    fig.clf()
-    # 创建空字典
-    axprops = dict(xticks=[], yticks=[])
-    # 创建子图的绘图区
-    create_plot.axl = plt.subplot(111, frameon=False, **axprops)
-    # 全局变量plot_tree.totalW存储决策树的宽度
-    # 全局变量plot_tree.totalD存储决策树的高度
-    # 全局变量plot_tree.xoff存储决策树节点的x坐标
-    # 全局变量plot_tree.yoff存储决策树节点的y坐标
-    plot_tree.totalW = float(get_num_leafs(in_tree))
-    plot_tree.totalD = float(get_tree_depth(in_tree))
-    plot_tree.xoff = -0.5/plot_tree.totalW
-    plot_tree.yoff = 1.0
-    plot_tree(in_tree, (0.5, 1.0), '')  # 决策树的起点：(0.5,1.0)
-    # 调用"绘制带箭头的注解"函数
-    # plot_node('decisionNodes', (0.5, 0.1), (0.1, 0.5), decisionNode)
-    # plot_node('leafNodes', (0.8, 0.1), (0.3, 0.8), leafNode)
+    fig = plt.figure(1, facecolor='white') # 创建窗口
+    fig.clf() # 清空绘图区
+    
+    axprops = dict(xticks=[], yticks=[]) # 创建空字典
+    create_plot.axl = plt.subplot(111, frameon=False, **axprops) # 创建子图的绘图区
+    
+    plot_tree.totalW = float(get_num_leafs(in_tree)) # 决策树的宽度
+    plot_tree.totalD = float(get_tree_depth(in_tree)) # 决策树的高度
+    plot_tree.xoff = -0.5/plot_tree.totalW # 决策树节点的x坐标
+    plot_tree.yoff = 1.0 # 决策树节点的y坐标
+    plot_tree(in_tree, (0.5, 1.0), '') # 决策树的起点：(0.5,1.0)
     plt.show()
 
 
