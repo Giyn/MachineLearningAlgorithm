@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 18 20:08:04 2020
+
+@author: Giyn
+"""
+
 from random import randrange
 from data_handle import data_spilt
 

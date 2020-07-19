@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 18 20:08:04 2020
+
+@author: Giyn
+"""
+
 from random import seed
 from RandomForest import RandomForest
 from data_handle import read_csv, feature_to_float, spilt_dataSet
