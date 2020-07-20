@@ -12,9 +12,9 @@ import treePlotter
 
 def cal_shannon_ent(dateset):
     """
-    函数作用：计算给定数据集的香农熵
+    计算给定数据集的香农熵
     :param dateset: 给定的数据集
-    :return 信息熵
+    :return: 信息熵
     """
     # 计算data_set的大小
     num_ents = len(dateset)
@@ -39,7 +39,7 @@ def cal_shannon_ent(dateset):
 
 def split_dataset(dataset, axis, value):
     """
-    函数作用：按照给定特征axis，划分数据集
+    按照给定特征axis，划分数据集
     :param dataset: 待划分的数据集
     :param axis: 划分数据集的特征(第几个特征)
     :param value: 需要返回的特征的值(相应特征的值)
@@ -64,9 +64,9 @@ def split_dataset(dataset, axis, value):
 
 def choose_best_feature_split(dataset):
     """
-    函数作用：选择最好的数据集划分方式
-    :param dataset:给定的数据集
-    :return:返回最好的特征
+    选择最好的数据集划分方式
+    :param dataset: 给定的数据集
+    :return: 返回最好的特征
     """
     # 数据的最后一列是当前示例的类别标签，不包括在特征中
     num_features = len(dataset[0]) - 1
@@ -92,13 +92,7 @@ def choose_best_feature_split(dataset):
             # 对所有唯一特征值得到的熵求和
             # H(Aj)=cal_shannon_ent(sub_dataset)
             new_ent += prob * cal_shannon_ent(sub_dataset)
-        """
-        信息增益是熵的减少或者是数据无序度的减少
-        信息增益H(D,A)=原始数据集的信息熵H(D)-特征A对数据集进行划分后信息熵H(D/A)
-        其中H(D/A)=sum(|Aj|/|D| * H(Aj)),j属于A的k种取值，
-        |Aj| / |D|表示特征A第j种取值的样本数占所有取值样本总数的比例
-        |D|表示，数据集的样本总数
-        """
+
         info_gain = base_ent - new_ent
         # 比较所有特征中的信息增益，并返回最好特征划分的索引值
         if info_gain > best_info_gain:
@@ -109,7 +103,7 @@ def choose_best_feature_split(dataset):
 
 def majority_cnt(classlist):
     """
-    函数作用：多数表决器
+    多数表决器
     :param classlist: 输入类标签列表
     :return: 返回出现最多次数的标签名称(key)
     """
@@ -128,10 +122,10 @@ def majority_cnt(classlist):
 
 def create_tree(dataset, labels):
     """
-    函数作用：创建树
+    创建树
     :param dataset: 给定数据集
-    :param labels:给定标签列表
-    :return:
+    :param labels: 给定标签列表
+    :return: my_tree
     """
     # 标签列表
     classlist = [example[-1] for example in dataset]
@@ -162,11 +156,11 @@ def create_tree(dataset, labels):
 
 def classify(input_tree, feat_labels, test_vec):
     """
-    函数作用：使用决策树的分类函数
+    使用决策树的分类函数
     :param input_tree: 给定的决策树
     :param feat_labels: 特征标签集
     :param test_vec: 测试点的位置
-    :return:
+    :return: class_label
     """
     first_str = list(input_tree.keys())[0]
     second_dict = input_tree[first_str]
@@ -185,7 +179,7 @@ def classify(input_tree, feat_labels, test_vec):
 
 def store_tree(input_tree, filename):
     """
-    函数作用：使用pickle存储决策树
+    使用pickle存储决策树
     :param input_tree: 决策树
     :param filename: 需要写入的文件名
     :return: None
@@ -199,7 +193,7 @@ def store_tree(input_tree, filename):
 
 def grab_tree(filename):
     """
-    函数作用：读出决策树结构
+    读出决策树结构
     :param filename: 需要读出的文件名
     :return: 返回决策树的内容
     """

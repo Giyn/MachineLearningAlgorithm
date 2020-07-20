@@ -16,7 +16,7 @@ arrow_args = dict(arrowstyle="<-")
 
 def plot_node(node_txt, center_pt, parent_pt, node_type):
     """
-    函数作用：绘制带箭头的注解,createPlot.axl是一个全局变量
+    绘制带箭头的注解,createPlot.axl是一个全局变量
     :param node_txt: 需要添加的注解文字
     :param center_pt: 箭头的首部坐标
     :param parent_pt: 箭头的尾部坐标
@@ -30,7 +30,7 @@ def plot_node(node_txt, center_pt, parent_pt, node_type):
 
 def get_num_leafs(my_tree):
     """
-    函数作用：获取决策树的叶节点数目
+    获取决策树的叶节点数目
     :param my_tree: 数结构字典
     :return: 树的叶节点数目
     """
@@ -53,7 +53,7 @@ def get_num_leafs(my_tree):
 
 def get_tree_depth(my_tree):
     """
-    函数作用：获得决策树的深度
+    获得决策树的深度
     :param my_tree: 给定的决策树
     :return: 树深
     """
@@ -78,7 +78,7 @@ def get_tree_depth(my_tree):
 
 def retrive_tree(i):
     """
-    函数作用：定义树结构，测试树结构函数
+    定义树结构，测试树结构函数
     :param i: 树列表的index
     :return: list[index]
     """
@@ -92,7 +92,7 @@ def retrive_tree(i):
 
 def plot_mid_text(cntr_pt, parant_pt, txt_string):
     """
-    函数作用：计算父节点和子结点的中间位置，并在此处添加文本标签信息
+    计算父节点和子结点的中间位置，并在此处添加文本标签信息
     :param cntr_pt: 子结点的坐标
     :param parant_pt: 父结点的坐标
     :param txt_string: 文本标签信息
@@ -107,11 +107,11 @@ def plot_mid_text(cntr_pt, parant_pt, txt_string):
 
 def plot_tree(my_tree, parant_pt, node_txt):
     """
-    函数作用：
+    绘制决策树
     :param my_tree: 决策树
     :param parant_pt: 父节点
     :param node_txt: 结点文本标签信息
-    :return:
+    :return: None
     """
     # 计算叶节点
     num_leafs = get_num_leafs(my_tree)
@@ -148,9 +148,9 @@ def plot_tree(my_tree, parant_pt, node_txt):
 
 def create_plot(in_tree):
     """
-    函数作用：创建新图形并清空绘图区，在绘图区绘制决策节点和叶节点
+    创建新图形并清空绘图区，在绘图区绘制决策节点和叶节点
     :param in_tree: 决策树
-    :return:
+    :return: None
     """
     fig = plt.figure(1, facecolor='white') # 创建窗口
     fig.clf() # 清空绘图区
