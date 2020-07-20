@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 21 00:03:34 2020
+
+@author: 许继元
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -5,16 +12,15 @@ import pandas as pd
 from sklearn.datasets import load_iris
 
 
-class optStruct:
-    """
-    数据结构，维护所有需要操作的值
-    Parameters：
-        dataMatIn - 数据矩阵
-        classLabels - 数据标签
-        C - 松弛变量
-        toler - 容错率
-    """
+class optStruct(object):
     def __init__(self, dataMatIn, classLabels, C, toler):
+        """
+        数据结构，维护所有需要操作的值
+        :param dataMatIn: 数据矩阵
+        :param classLabels: 数据标签
+        :param C: 松弛变量
+        :param toler: 容错率
+        """
         self.X = dataMatIn # 数据矩阵
         self.labelMat = classLabels # 数据标签
         self.C = C # 松弛变量
@@ -28,11 +34,9 @@ class optStruct:
 def calcEk(oS, k):
     """
     计算误差
-    Parameters：
-        oS - 数据结构
-        k - 标号为k的数据
-    Returns:
-        Ek - 标号为k的数据误差
+    :param oS: 数据结构
+    :param k: 标号为k的数据
+    :return 标号为k的数据误差
     """
     fXk = float(np.multiply(oS.alphas,oS.labelMat).T*(oS.X*oS.X[k,:].T) + oS.b)
     Ek = fXk - float(oS.labelMat[k])
@@ -42,11 +46,9 @@ def calcEk(oS, k):
 def selectJrand(i, m):
     """
     函数说明:随机选择alpha_j的索引值
-    Parameters:
-        i - alpha_i的索引值
-        m - alpha参数个数
-    Returns:
-        j - alpha_j的索引值
+    :param i: alpha_i的索引值
+    :param m: alpha参数个数
+    :return alpha_j的索引值
     """
     j = i # 选择一个不等于i的j
     while (j == i):
@@ -57,13 +59,12 @@ def selectJrand(i, m):
 def selectJ(i, oS, Ei):
     """
     内循环启发方式2
-    Parameters：
-        i - 标号为i的数据的索引值
-        oS - 数据结构
-        Ei - 标号为i的数据误差
-    Returns:
-        j, maxK - 标号为j或maxK的数据的索引值
-        Ej - 标号为j的数据误差
+    :param i: 标号为i的数据的索引值
+    :param oS: 数据结构
+    :param Ei: 标号为i的数据误差
+    :returns:
+        j, maxK: 标号为j或maxK的数据的索引值
+        Ej: 标号为j的数据误差
     """
     maxK = -1; maxDeltaE = 0; Ej = 0 # 初始化
     oS.eCache[i] = [1,Ei] # 根据Ei更新误差缓存
@@ -85,11 +86,9 @@ def selectJ(i, oS, Ei):
 def updateEk(oS, k):
     """
     计算Ek,并更新误差缓存
-    Parameters：
-        oS - 数据结构
-        k - 标号为k的数据的索引值
-    Returns:
-        无
+    :param oS: 数据结构
+    :param k: 标号为k的数据的索引值
+    :return None
     """
     Ek = calcEk(oS, k) # 计算Ek
     oS.eCache[k] = [1,Ek] # 更新误差缓存
@@ -98,12 +97,10 @@ def updateEk(oS, k):
 def clipAlpha(aj,H,L):
     """
     修剪alpha_j
-    Parameters:
-        aj - alpha_j的值
-        H - alpha上限
-        L - alpha下限
-    Returns:
-        aj - 修剪后的alpah_j的值
+    :param aj: alpha_j的值
+    :param H: alpha上限
+    :param L: alpha下限
+    :return 修剪后的alpah_j的值
     """
     if aj > H: 
         aj = H
@@ -115,18 +112,17 @@ def clipAlpha(aj,H,L):
 def innerL(i, oS):
     """
     优化的SMO算法
-    Parameters：
-        i - 标号为i的数据的索引值
-        oS - 数据结构
-    Returns:
-        1 - 有任意一对alpha值发生变化
-        0 - 没有任意一对alpha值发生变化或变化太小
+    :param i: 标号为i的数据的索引值
+    :param oS: 数据结构
+    :returns:
+        1: 有任意一对alpha值发生变化
+        0: 没有任意一对alpha值发生变化或变化太小
     """
     # 步骤1：计算误差Ei
     Ei = calcEk(oS, i)
-    # 优化alpha,设定一定的容错率。
+    # 优化alpha，设定一定的容错率。
     if ((oS.labelMat[i] * Ei < -oS.tol) and (oS.alphas[i] < oS.C)) or ((oS.labelMat[i] * Ei > oS.tol) and (oS.alphas[i] > 0)):
-        # 使用内循环启发方式2选择alpha_j,并计算Ej
+        # 使用内循环启发方式2选择alpha_j，并计算Ej
         j,Ej = selectJ(i, oS, Ei)
         # 保存更新前的aplpha值，使用深拷贝
         alphaIold = oS.alphas[i].copy(); alphaJold = oS.alphas[j].copy();
@@ -173,15 +169,14 @@ def innerL(i, oS):
 def smoP(dataMatIn, classLabels, C, toler, maxIter):
     """
     完整的线性SMO算法
-    Parameters：
-        dataMatIn - 数据矩阵
-        classLabels - 数据标签
-        C - 松弛变量
-        toler - 容错率
-        maxIter - 最大迭代次数
-    Returns:
-        oS.b - SMO算法计算的b
-        oS.alphas - SMO算法计算的alphas
+    :param dataMatIn: 数据矩阵
+    :param classLabels: 数据标签
+    :param C: 松弛变量
+    :param toler: 容错率
+    :param maxIter: 最大迭代次数
+    :returns:
+        oS.b: SMO算法计算的b
+        oS.alphas: SMO算法计算的alphas
     """
     oS = optStruct(np.mat(dataMatIn), np.mat(classLabels).transpose(), C, toler) # 初始化数据结构
     iter = 0 # 初始化当前迭代次数
@@ -210,12 +205,10 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter):
 def showClassifer(dataMat, classLabels, w, b):
     """
     分类结果可视化
-    Parameters:
-        dataMat - 数据矩阵
-        w - 直线法向量
-        b - 直线截距
-    Returns:
-        无
+    :param dataMat: 数据矩阵
+    :param w: 直线法向量
+    :param b: 直线截距
+    :returns None
     """
     # 绘制样本点
     data_plus = [] # 正样本
@@ -248,17 +241,15 @@ def showClassifer(dataMat, classLabels, w, b):
     outname = "./SVM" + ".png"
     plt.savefig(outname) # 保存图片
     plt.show()
-    
+
 
 def calcWs(alphas,dataArr,classLabels):
     """
     计算w
-    Parameters:
-        dataArr - 数据矩阵
-        classLabels - 数据标签
-        alphas - alphas值
-    Returns:
-        w - 计算得到的w
+    :param dataArr: 数据矩阵
+    :param classLabels: 数据标签
+    :param alphas: alphas值
+    :returns 计算得到的w
     """
     X = np.mat(dataArr); labelMat = np.mat(classLabels).transpose()
     m,n = np.shape(X)
