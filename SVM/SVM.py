@@ -36,7 +36,7 @@ def calcEk(oS, k):
     计算误差
     :param oS: 数据结构
     :param k: 标号为k的数据
-    :return 标号为k的数据误差
+    :returns: 标号为k的数据误差
     """
     fXk = float(np.multiply(oS.alphas,oS.labelMat).T*(oS.X*oS.X[k,:].T) + oS.b)
     Ek = fXk - float(oS.labelMat[k])
@@ -48,7 +48,7 @@ def selectJrand(i, m):
     函数说明:随机选择alpha_j的索引值
     :param i: alpha_i的索引值
     :param m: alpha参数个数
-    :return alpha_j的索引值
+    :returns: alpha_j的索引值
     """
     j = i # 选择一个不等于i的j
     while (j == i):
@@ -88,7 +88,7 @@ def updateEk(oS, k):
     计算Ek,并更新误差缓存
     :param oS: 数据结构
     :param k: 标号为k的数据的索引值
-    :return None
+    :returns: None
     """
     Ek = calcEk(oS, k) # 计算Ek
     oS.eCache[k] = [1,Ek] # 更新误差缓存
@@ -100,7 +100,7 @@ def clipAlpha(aj,H,L):
     :param aj: alpha_j的值
     :param H: alpha上限
     :param L: alpha下限
-    :return 修剪后的alpah_j的值
+    :returns: 修剪后的alpah_j的值
     """
     if aj > H: 
         aj = H
@@ -208,7 +208,7 @@ def showClassifer(dataMat, classLabels, w, b):
     :param dataMat: 数据矩阵
     :param w: 直线法向量
     :param b: 直线截距
-    :returns None
+    :returns: None
     """
     # 绘制样本点
     data_plus = [] # 正样本
@@ -249,7 +249,7 @@ def calcWs(alphas,dataArr,classLabels):
     :param dataArr: 数据矩阵
     :param classLabels: 数据标签
     :param alphas: alphas值
-    :returns 计算得到的w
+    :returns: 计算得到的w
     """
     X = np.mat(dataArr); labelMat = np.mat(classLabels).transpose()
     m,n = np.shape(X)
