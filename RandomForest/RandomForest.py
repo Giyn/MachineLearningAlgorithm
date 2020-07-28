@@ -10,16 +10,15 @@ from data_handle import data_spilt
 
 
 class RandomForest():
-
     def __init__(self):
         pass
 
     # 随机采样
     def get_sample(self, dataSet, ratio):
         subdataSet = []
-        subdata_len = round(len(dataSet) * ratio)  # round返回浮点数的四舍五入值
+        subdata_len = round(len(dataSet) * ratio) # round返回浮点数的四舍五入值
         while len(subdataSet) < subdata_len:
-            index = randrange(len(dataSet) - 1)  # 返回序列中随机一个数
+            index = randrange(len(dataSet) - 1) # 返回序列中随机一个数
             subdataSet.append(dataSet[index])
         return subdataSet
 
@@ -29,7 +28,7 @@ class RandomForest():
         loss = 0.0
         for class_value in class_values:
             left_size = len(left)
-            if left_size != 0:  # 防止除数为零
+            if left_size != 0: # 防止除数为零
                 prop = [row[-1] for row in left].count(class_value) / float(left_size)
                 loss += (prop * (1.0 - prop))
             right_size = len(right)
