@@ -1,211 +1,304 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Jul 18 20:08:04 2020
+Created on Thu Jul 23 11:57:25 2020
 
 @author: Giyn
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from sklearn.utils.multiclass import type_of_target
+import treePlotter
+import pruning
 
 
-def loadDataSet(fileName):
-	"""
-	加载数据
-	:param fileName: 文件名
-	:return: 数据矩阵
-	"""
-	dataMat = []
-	fr = open(fileName)
-	for line in fr.readlines():
-		curLine = line.strip().split('\t')
-		fltLine = list(map(float, curLine))	# 转化为float类型
-		dataMat.append(fltLine)
-	return dataMat
+class Node(object):
+    def __init__(self):
+        self.feature_name = None
+        self.feature_index = None
+        self.subtree = {}
+        self.impurity = None
+        self.is_continuous = False
+        self.split_value = None
+        self.is_leaf = False
+        self.leaf_class = None
+        self.leaf_num = None
+        self.high = -1
 
 
-def plotDataSet(filename):
-	"""
-	绘制数据集
-	:param filename: 文件名
-	:return: None
-	"""
-	dataMat = loadDataSet(filename)	# 加载数据集
-	n = len(dataMat) # 数据个数
-	xcord = []; ycord = [] # 样本点
-	for i in range(n):													
-		xcord.append(dataMat[i][0]); ycord.append(dataMat[i][1]) # 样本点
-	fig = plt.figure()
-	ax = fig.add_subplot(111) # 添加subplot
-	ax.scatter(xcord, ycord, s = 20, c = 'blue',alpha = .5) # 绘制样本点
-	plt.title('DataSet') # 绘制title
-	plt.xlabel('X')
-	plt.show()
+class DecisionTree(object):
+    def __init__(self, criterion='gini', pruning=None):
+        '''
+        :param criterion: 划分方法选择，'gini', 'infogain', 'gainratio', 三种选项。
+        :param pruning: 是否剪枝。 'pre_pruning' 'post_pruning'
+        '''
+        assert criterion in ('gini', 'infogain', 'gainratio')
+        assert pruning in (None, 'pre_pruning', 'post_pruning')
+        self.criterion = criterion
+        self.pruning = pruning
 
 
-def binSplitDataSet(dataSet, feature, value):
-	"""
-	根据特征切分数据集合
-	:param dataSet: 数据集合
-	:param feature: 带切分的特征
-	:param value: 该特征的值
-	:returns:
-		mat0: 切分的数据集合0
-		mat1: 切分的数据集合1
-	"""
-	mat0 = dataSet[np.nonzero(dataSet[:,feature] > value)[0],:]
-	mat1 = dataSet[np.nonzero(dataSet[:,feature] <= value)[0],:]
-	return mat0, mat1
+    def fit(self, X_train, y_train, X_val=None, y_val=None):
+        '''
+        生成决策树
+        :param X: 只支持DataFrame类型数据，因为DataFrame中已有列名，省去一个列名的参数。不支持np.array等其他数据类型
+        :param y:
+        :return:
+        '''
+        if self.pruning is not None and (X_val is None or y_val is None):
+            raise Exception('you must input X_val and y_val if you are going to pruning')
 
-def regLeaf(dataSet):
-	"""
-    生成叶结点
-	:param dataSet: 数据集合
-	:return: 目标变量的均值
-	"""
-	return np.mean(dataSet[:,-1])
+        X_train.reset_index(inplace=True, drop=True)
+        y_train.reset_index(inplace=True, drop=True)
 
-def regErr(dataSet):
-	"""
-	误差估计函数
-	:param dataSet: 数据集合
-	:return: 目标变量的总方差
-	"""
-	return np.var(dataSet[:,-1]) * np.shape(dataSet)[0]
+        if X_val is not None:
+            X_val.reset_index(inplace=True, drop=True)
+            y_val.reset_index(inplace=True, drop=True)
 
-def chooseBestSplit(dataSet, leafType = regLeaf, errType = regErr, ops = (1,4)):
-	"""
-	找到数据的最佳二元切分方式函数
-	:param dataSet: 数据集合
-	:param leafType: 生成叶结点
-	:param regErr: 误差估计函数
-	:param ops: 用户定义的参数构成的元组
-	:returns: 
-		bestIndex: 最佳切分特征
-		bestValue: 最佳特征值
-	"""
-	import types
-	# tolS允许的误差下降值,tolN切分的最少样本数
-	tolS = ops[0]; tolN = ops[1]
-	# 如果当前所有值相等,则退出。(根据set的特性)
-	if len(set(dataSet[:,-1].T.tolist()[0])) == 1:
-		return None, leafType(dataSet)
-	# 统计数据集合的行m和列n
-	m, n = np.shape(dataSet)
-	# 默认最后一个特征为最佳切分特征,计算其误差估计
-	S = errType(dataSet)
-	# 分别为最佳误差,最佳特征切分的索引值,最佳特征值
-	bestS = float('inf'); bestIndex = 0; bestValue = 0
-	# 遍历所有特征列
-	for featIndex in range(n - 1):
-		# 遍历所有特征值
-		for splitVal in set(dataSet[:,featIndex].T.A.tolist()[0]):
-			# 根据特征和特征值切分数据集
-			mat0, mat1 = binSplitDataSet(dataSet, featIndex, splitVal)
-			# 如果数据少于tolN,则退出
-			if (np.shape(mat0)[0] < tolN) or (np.shape(mat1)[0] < tolN): continue
-			# 计算误差估计
-			newS = errType(mat0) + errType(mat1)
-			# 如果误差估计更小,则更新特征索引值和特征值
-			if newS < bestS: 
-				bestIndex = featIndex
-				bestValue = splitVal
-				bestS = newS
-	# 如果误差减少不大则退出
-	if (S - bestS) < tolS: 
-		return None, leafType(dataSet)
-	# 根据最佳的切分特征和特征值切分数据集合
-	mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue)
-	# 如果切分出的数据集很小则退出
-	if (np.shape(mat0)[0] < tolN) or (np.shape(mat1)[0] < tolN):
-		return None, leafType(dataSet)
-	# 返回最佳切分特征和特征值
-	return bestIndex, bestValue
+        self.columns = list(X_train.columns) # 包括原数据的列名
+        self.tree_ = self.generate_tree(X_train, y_train)
 
-def createTree(dataSet, leafType = regLeaf, errType = regErr, ops = (1, 4)):
-	"""
-	树构建函数
-	:param dataSet: 数据集合
-	:param leafType: 建立叶结点的函数
-	:param errType: 误差计算函数
-	:param ops: 包含树构建所有其他参数的元组
-	:return: retTree: 构建的回归树
-	"""
-	# 选择最佳切分特征和特征值
-	feat, val = chooseBestSplit(dataSet, leafType, errType, ops)
-	# r如果没有特征,则返回特征值
-	if feat == None: return val
-	# 回归树
-	retTree = {}
-	retTree['spInd'] = feat
-	retTree['spVal'] = val
-	# 分成左数据集和右数据集
-	lSet, rSet = binSplitDataSet(dataSet, feat, val)
-	# 创建左子树和右子树
-	retTree['left'] = createTree(lSet, leafType, errType, ops)
-	retTree['right'] = createTree(rSet, leafType, errType, ops)
-	return retTree  
+        if self.pruning == 'pre_pruning':
+            pruning.pre_pruning(X_train, y_train, X_val, y_val, self.tree_)
+        elif self.pruning == 'post_pruning':
+            pruning.post_pruning(X_train, y_train, X_val, y_val, self.tree_)
 
-def isTree(obj):
-	"""
-	判断测试输入变量是否是一棵树
-	:param obj: 测试对象
-	:return: 是否是一棵树
-	"""
-	import types
-	return (type(obj).__name__ == 'dict')
+        return self
 
-def getMean(tree):
-	"""
-	对树进行塌陷处理(即返回树平均值)
-	:param tree: 树
-	:return: 树的平均值
-	"""
-	if isTree(tree['right']): tree['right'] = getMean(tree['right'])
-	if isTree(tree['left']): tree['left'] = getMean(tree['left'])
-	return (tree['left'] + tree['right']) / 2.0
 
-def prune(tree, testData):
-	"""
-	后剪枝
-	:param tree: 树
-	:param test: 测试集
-	:return: 树的平均值
-	"""
-	# 如果测试集为空,则对树进行塌陷处理
-	if np.shape(testData)[0] == 0: return getMean(tree)
-	# 如果有左子树或者右子树,则切分数据集
-	if (isTree(tree['right']) or isTree(tree['left'])):
-		lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
-	# 处理左子树(剪枝)
-	if isTree(tree['left']): tree['left'] = prune(tree['left'], lSet)
-	# 处理右子树(剪枝)
-	if isTree(tree['right']): tree['right'] =  prune(tree['right'], rSet)
-	# 如果当前结点的左右结点为叶结点
-	if not isTree(tree['left']) and not isTree(tree['right']):
-		lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
-		# 计算没有合并的误差
-		errorNoMerge = np.sum(np.power(lSet[:,-1] - tree['left'],2)) + np.sum(np.power(rSet[:,-1] - tree['right'],2))
-		# 计算合并的均值
-		treeMean = (tree['left'] + tree['right']) / 2.0
-		# 计算合并的误差
-		errorMerge = np.sum(np.power(testData[:,-1] - treeMean, 2))
-		# 如果合并的误差小于没有合并的误差,则合并
-		if errorMerge < errorNoMerge: 
-			# print("merging")
-			return treeMean
-		else: return tree
-	else: return tree
+    def generate_tree(self, X, y):
+        my_tree = Node()
+        my_tree.leaf_num = 0
+        if y.nunique() == 1: # 属于同一类别
+            my_tree.is_leaf = True
+            my_tree.leaf_class = y.values[0]
+            my_tree.high = 0
+            my_tree.leaf_num += 1
+            return my_tree
+
+        if X.empty: # 特征用完了，数据为空，返回样本数最多的类
+            my_tree.is_leaf = True
+            my_tree.leaf_class = pd.value_counts(y).index[0]
+            my_tree.high = 0
+            my_tree.leaf_num += 1
+            return my_tree
+
+        best_feature_name, best_impurity = self.choose_best_feature_to_split(X, y)
+
+        my_tree.feature_name = best_feature_name
+        my_tree.impurity = best_impurity[0]
+        my_tree.feature_index = self.columns.index(best_feature_name)
+
+        feature_values = X.loc[:, best_feature_name]
+
+        if len(best_impurity) == 1: # 离散值
+            my_tree.is_continuous = False
+
+            unique_vals = pd.unique(feature_values)
+            sub_X = X.drop(best_feature_name, axis=1)
+
+            max_high = -1
+            for value in unique_vals:
+                my_tree.subtree[value] = self.generate_tree(sub_X[feature_values == value], y[feature_values == value])
+                if my_tree.subtree[value].high > max_high: # 记录子树下最高的高度
+                    max_high = my_tree.subtree[value].high
+                my_tree.leaf_num += my_tree.subtree[value].leaf_num
+
+            my_tree.high = max_high + 1
+
+        elif len(best_impurity) == 2: # 连续值
+            my_tree.is_continuous = True
+            my_tree.split_value = best_impurity[1]
+            up_part = '>= {:.3f}'.format(my_tree.split_value)
+            down_part = '< {:.3f}'.format(my_tree.split_value)
+
+            my_tree.subtree[up_part] = self.generate_tree(X[feature_values >= my_tree.split_value],
+                                                          y[feature_values >= my_tree.split_value])
+            my_tree.subtree[down_part] = self.generate_tree(X[feature_values < my_tree.split_value],
+                                                            y[feature_values < my_tree.split_value])
+
+            my_tree.leaf_num += (my_tree.subtree[up_part].leaf_num + my_tree.subtree[down_part].leaf_num)
+
+            my_tree.high = max(my_tree.subtree[up_part].high, my_tree.subtree[down_part].high) + 1
+
+        return my_tree
+
+
+    def predict(self, X):
+        '''
+        只支持 pd.DataFrame 类型数据
+        :param X: pd.DataFrame 类型
+        :return:
+        '''
+        if not hasattr(self, "tree_"):
+            raise Exception('you have to fit first before predict.')
+        if X.ndim == 1:
+            return self.predict_single(X)
+        else:
+            return X.apply(self.predict_single, axis=1)
+
+
+    def predict_single(self, x, subtree=None):
+        '''
+        预测单一样本。实际上这里也可以写成循环，写成递归样本大的时候有栈溢出的风险。
+        :param x:
+        :param subtree: 根据特征，往下递进的子树。
+        :return:
+        '''
+        if subtree is None:
+            subtree = self.tree_
+
+        if subtree.is_leaf:
+            return subtree.leaf_class
+
+        if subtree.is_continuous: # 若是连续值，需要判断是
+            if x[subtree.feature_index] >= subtree.split_value:
+                return self.predict_single(x, subtree.subtree['>= {:.3f}'.format(subtree.split_value)])
+            else:
+                return self.predict_single(x, subtree.subtree['< {:.3f}'.format(subtree.split_value)])
+        else:
+            return self.predict_single(x, subtree.subtree[x[subtree.feature_index]])
+
+
+    def choose_best_feature_to_split(self, X, y):
+        assert self.criterion in ('gini', 'infogain', 'gainratio')
+
+        if self.criterion == 'gini':
+            return self.choose_best_feature_gini(X, y)
+        elif self.criterion == 'infogain':
+            return self.choose_best_feature_infogain(X, y)
+        elif self.criterion == 'gainratio':
+            return self.choose_best_feature_gainratio(X, y)
+
+
+    def choose_best_feature_gini(self, X, y):
+        features = X.columns
+        best_feature_name = None
+        best_gini = [float('inf')]
+        for feature_name in features:
+            is_continuous = type_of_target(X[feature_name]) == 'continuous'
+            gini_idex = self.gini_index(X[feature_name], y, is_continuous)
+            if gini_idex[0] < best_gini[0]:
+                best_feature_name = feature_name
+                best_gini = gini_idex
+
+        return best_feature_name, best_gini
+
+
+    def choose_best_feature_gainratio(self, X, y):
+        '''
+        以返回值中 best_gain_ratio 的长度来判断当前特征是否为连续值，若长度为 1 则为离散值，若长度为 2 ，则为连续值
+        :param X: 当前所有特征的数据 pd.DaraFrame格式
+        :param y: 标签值
+        :return: 以信息增益率来选择的最佳划分属性，第一个返回值为属性名称，第二个为最佳划分属性对应的信息增益率
+        '''
+        features = X.columns
+        best_feature_name = None
+        best_gain_ratio = [float('-inf')]
+        entD = self.entroy(y)
+
+        for feature_name in features:
+            is_continuous = type_of_target(X[feature_name]) == 'continuous'
+            info_gain_ratio = self.info_gainRatio(X[feature_name], y, entD, is_continuous)
+            if info_gain_ratio[0] > best_gain_ratio[0]:
+                best_feature_name = feature_name
+                best_gain_ratio = info_gain_ratio
+
+        return best_feature_name, best_gain_ratio
+
+
+    def gini_index(self, feature, y, is_continuous=False):
+        '''
+        计算基尼指数，对于连续值，选择基尼系统最小的点，作为分割点
+        :param feature:
+        :param y:
+        :return:
+        '''
+        m = y.shape[0]
+        unique_value = pd.unique(feature)
+        if is_continuous:
+            unique_value.sort() # 排序, 用于建立分割点
+            # 这里其实也可以直接用feature值作为分割点，但这样会出现空集，所以还是建立分割点。
+            split_point_set = [(unique_value[i] + unique_value[i + 1]) / 2 for i in range(len(unique_value) - 1)]
+
+            min_gini = float('inf')
+            min_gini_point = None
+            for split_point_ in split_point_set: # 遍历所有的分割点，寻找基尼指数最小的分割点
+                Dv1 = y[feature <= split_point_]
+                Dv2 = y[feature > split_point_]
+                gini_index = Dv1.shape[0] / m * self.gini(Dv1) + Dv2.shape[0] / m * self.gini(Dv2)
+
+                if gini_index < min_gini:
+                    min_gini = gini_index
+                    min_gini_point = split_point_
+            return [min_gini, min_gini_point]
+        else:
+            gini_index = 0
+            for value in unique_value:
+                Dv = y[feature == value]
+                m_dv = Dv.shape[0]
+                gini = self.gini(Dv)
+                gini_index += m_dv / m * gini
+
+            return [gini_index]
+
+
+    def gini(self, y):
+        p = pd.value_counts(y) / y.shape[0]
+        gini = 1 - np.sum(p ** 2)
+        return gini
+
+
+    def info_gainRatio(self, feature, y, entD, is_continuous=False):
+        '''
+        计算信息增益率 参数和info_gain方法中参数一致
+        :param feature:
+        :param y:
+        :param entD:
+        :return:
+        '''
+        if is_continuous:
+            # 对于连续值，以最大化信息增益选择划分点之后，计算信息增益率，注意，在选择划分点之后，需要对信息增益进行修正，要减去log_2(N-1)/|D|，N是当前特征的取值个数，D是总数据量。
+            # 修正原因是因为：当离散属性和连续属性并存时，C4.5算法倾向于选择连续特征做最佳树分裂点
+            # 信息增益修正中，N的值，网上有些资料认为是“可能分裂点的个数”，也有的是“当前特征的取值个数”，这里采用“当前特征的取值个数”。
+            # 这样 (N-1)的值，就是去重后的“分裂点的个数” , 即在info_gain函数中，split_point_set的长度。
+            gain, split_point = self.info_gain(feature, y, entD, is_continuous)
+            p1 = np.sum(feature <= split_point) / feature.shape[0] # 小于或划分点的样本占比
+            p2 = 1 - p1 # 大于划分点样本占比
+            IV = -(p1 * np.log2(p1) + p2 * np.log2(p2))
+
+            grain_ratio = (gain - np.log2(feature.nunique()) / len(y)) / IV # 对信息增益修正
+            return [grain_ratio, split_point]
+        else:
+            p = pd.value_counts(feature) / feature.shape[0] # 当前特征下 各取值样本所占比率
+            IV = np.sum(-p * np.log2(p))
+            grain_ratio = self.info_gain(feature, y, entD, is_continuous)[0] / IV
+            return [grain_ratio]
+
+
+    def entroy(self, y):
+        p = pd.value_counts(y) / y.shape[0]  # 计算各类样本所占比率
+        ent = np.sum(-p * np.log2(p))
+        return ent
+
 
 if __name__ == '__main__':
-	print('剪枝前:')
-	train_filename = 'ex2.txt'
-	train_Data = loadDataSet(train_filename)
-	train_Mat = np.mat(train_Data)
-	tree = createTree(train_Mat)
-	print(tree)
-	print('\n剪枝后:')
-	test_filename = 'ex2test.txt'
-	test_Data = loadDataSet(test_filename)
-	test_Mat = np.mat(test_Data)
-	print(prune(tree, test_Mat))
+    data_path2 = 'watermelon2_0_Ch.txt'
+    data = pd.read_table(data_path2, encoding='utf8', delimiter=',', index_col=0)
+
+    train = [1, 2, 3, 6, 7, 10, 14, 15, 16, 17]
+    train = [i - 1 for i in train]
+    X = data.iloc[train, :6]
+    y = data.iloc[train, 6]
+
+    test = [4, 5, 8, 9, 11, 12, 13]
+    test = [i - 1 for i in test]
+
+    X_val = data.iloc[test, :6]
+    y_val = data.iloc[test, 6]
+
+    tree = DecisionTree('gini', 'pre_pruning')
+    tree.fit(X, y, X_val, y_val)
+
+    print("平均准确率为:", np.mean(tree.predict(X_val) == y_val))
+    treePlotter.create_plot(tree.tree_)
