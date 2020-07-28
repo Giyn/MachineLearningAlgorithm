@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 28 12:35:08 2020
+
+@author: Giyn
+"""
+
 import os
 import numpy as np
 import struct
@@ -26,7 +33,7 @@ def load_mnist(kind = 'train'):
     return images, labels
 
 
-def testPlt09(X_train, y_train):# 按照2*5的方式排列显示单个数字的图像
+def testPlt09(X_train, y_train): # 按照2*5的方式排列显示单个数字的图像
     fig, ax = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True, ) # 两行五列
 
     ax = ax.flatten() # 折叠成一维数组
