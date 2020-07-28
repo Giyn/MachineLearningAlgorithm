@@ -19,6 +19,7 @@ class C45(object):
         self.attributes = []
         self.tree = None
 
+
     def fetchData(self):
         with open(self.filePathToNames, "r") as file:
             classes = file.readline()
@@ -36,14 +37,17 @@ class C45(object):
                 if row != [] or row != [""]:
                     self.data.append(row)
 
+
     def preprocessData(self):
         for index, row in enumerate(self.data):
             for attr_index in range(self.numAttributes):
                 if(not self.isAttrDiscrete(self.attributes[attr_index])):
                     self.data[index][attr_index] = float(self.data[index][attr_index])
 
+
     def printTree(self):
         self.printNode(self.tree)
+
 
     def printNode(self, node, indent=""):
         if not node.isLeaf:
@@ -72,9 +76,9 @@ class C45(object):
                     self.printNode(rightChild, indent + "\t")
 
 
-
     def generateTree(self):
         self.tree = self.recursiveGenerateTree(self.data, self.attributes)
+
 
     def recursiveGenerateTree(self, curData, curAttributes):
         allSame = self.allSameClass(curData)
@@ -97,6 +101,7 @@ class C45(object):
             node.children = [self.recursiveGenerateTree(subset, remainingAttributes) for subset in splitted]
             return node
 
+
     def getMajClass(self, curData):
         freq = [0]*len(self.classes)
         for row in curData:
@@ -112,6 +117,7 @@ class C45(object):
                 return False
         return data[0][-1]
 
+
     def isAttrDiscrete(self, attribute):
         if attribute not in self.attributes:
             raise ValueError("Attribute not listed")
@@ -119,6 +125,7 @@ class C45(object):
             return False
         else:
             return True
+
 
     def splitAttribute(self, curData, curAttributes):
         splitted = []
@@ -168,6 +175,7 @@ class C45(object):
                             best_threshold = threshold
         return (best_attribute,best_threshold,splitted)
 
+
     def gain(self,unionSet, subsets):
         # input : data and disjoint subsets of it
         # output : information gain
@@ -182,6 +190,7 @@ class C45(object):
         # calculate total gain
         totalGain = impurityBeforeSplit - impurityAfterSplit
         return totalGain
+
 
     def entropy(self, dataSet):
         S = len(dataSet)
@@ -203,6 +212,7 @@ class C45(object):
             return 0
         else:
             return math.log(x,2)
+
 
 class Node(object):
     def __init__(self,isLeaf, label, threshold):
