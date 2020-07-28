@@ -80,7 +80,7 @@ def selectJ(i, oS, Ei):
     else: # 没有不为0的误差
         j = selectJrand(i, oS.m) # 随机选择alpha_j的索引值
         Ej = calcEk(oS, j) # 计算Ej
-    return j, Ej  # j,Ej
+    return j, Ej # j,Ej
 
 
 def updateEk(oS, k):
