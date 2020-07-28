@@ -2,11 +2,10 @@
 """
 Created on Tue Jul 21 23:52:38 2020
 
-@author: 许继元
+@author: Giyn
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def loadDataSet(fileName):
