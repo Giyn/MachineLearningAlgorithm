@@ -1,36 +1,42 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 29 14:08:56 2020
+Created on Sun Aug  5 16:18:52 2020
 
-@author: 许继元
+@author: Giyn
 """
+
 import numpy as np
 import random
 import re
-        
-"""
-函数说明:将切分的实验样本词条整理成不重复的词条列表，也就是词汇表
-Parameters:
-	dataSet - 整理的样本数据集
-Returns:
-	vocabSet - 返回不重复的词条列表，也就是词汇表
-"""
+
+
 def createVocabList(dataSet):
+    """
+    将切分的实验样本词条整理成不重复的词条列表，也就是词汇表
+
+    Args:
+        dataSet: 整理的样本数据集
+
+    Returns:
+        vocabSet: 返回不重复的词条列表，也就是词汇表
+    """
     vocabSet = set([]) # 创建一个空的不重复列表
     for document in dataSet:				
         vocabSet = vocabSet | set(document) # 取并集
     return list(vocabSet)
 
 
-"""
-函数说明:根据vocabList词汇表，将inputSet向量化，向量的每个元素为1或0
-Parameters:
-	vocabList - createVocabList返回的列表
-	inputSet - 切分的词条列表
-Returns:
-	returnVec - 文档向量,词集模型
-"""
 def setOfWords2Vec(vocabList, inputSet):
+    """
+    根据vocabList词汇表，将inputSet向量化，向量的每个元素为1或0
+
+    Args:
+        vocabList: createVocabList返回的列表
+        inputSet: 切分的词条列表
+
+    Returns:
+        returnVec: 文档向量,词集模型
+    """
     returnVec = [0] * len(vocabList) # 创建一个其中所含元素都为0的向量
     for word in inputSet: # 遍历每个词条
         if word in vocabList: # 如果词条存在于词汇表中，则置1
@@ -39,15 +45,17 @@ def setOfWords2Vec(vocabList, inputSet):
     return returnVec # 返回文档向量
 
 
-"""
-函数说明:根据vocabList词汇表，构建词袋模型
-Parameters:
-	vocabList - createVocabList返回的列表
-	inputSet - 切分的词条列表
-Returns:
-	returnVec - 文档向量,词袋模型
-"""
 def bagOfWords2VecMN(vocabList, inputSet):
+    """
+    根据vocabList词汇表，构建词袋模型
+
+    Args:
+        vocabList: createVocabList返回的列表
+        inputSet: 切分的词条列表
+
+    Returns:
+        returnVec: 文档向量,词袋模型
+    """
     returnVec = [0] * len(vocabList) # 创建一个其中所含元素都为0的向量
     for word in inputSet: # 遍历每个词条
         if word in vocabList: # 如果词条存在于词汇表中，则计数加一
@@ -55,17 +63,19 @@ def bagOfWords2VecMN(vocabList, inputSet):
     return returnVec # 返回词袋模型
 
 
-"""
-函数说明:朴素贝叶斯分类器训练函数
-Parameters:
-	trainMatrix - 训练文档矩阵，即setOfWords2Vec返回的returnVec构成的矩阵
-	trainCategory - 训练类别标签向量，即loadDataSet返回的classVec
-Returns:
-	p0Vect - 非侮辱类的条件概率数组
-	p1Vect - 侮辱类的条件概率数组
-	pAbusive - 文档属于侮辱类的概率
-"""
 def trainNB0(trainMatrix,trainCategory):
+    """
+    朴素贝叶斯分类器训练函数
+
+    Args:
+        trainMatrix: 训练文档矩阵，即setOfWords2Vec返回的returnVec构成的矩阵
+        trainCategory: 训练类别标签向量，即loadDataSet返回的classVec
+
+    Returns:
+        p0Vect: 非侮辱类的条件概率数组
+        p1Vect: 侮辱类的条件概率数组
+        pAbusive: 文档属于侮辱类的概率
+    """
     numTrainDocs = len(trainMatrix) # 计算训练的文档数目
     numWords = len(trainMatrix[0]) # 计算每篇文档的词条数
     pAbusive = sum(trainCategory)/float(numTrainDocs) # 文档属于侮辱类的概率
@@ -83,18 +93,20 @@ def trainNB0(trainMatrix,trainCategory):
     return p0Vect, p1Vect, pAbusive # 返回属于侮辱类的条件概率数组，属于非侮辱类的条件概率数组，文档属于侮辱类的概率
 
 
-"""
-函数说明:朴素贝叶斯分类器分类函数
-Parameters:
-	vec2Classify - 待分类的词条数组
-	p0Vec - 非侮辱类的条件概率数组
-	p1Vec -侮辱类的条件概率数组
-	pClass1 - 文档属于侮辱类的概率
-Returns:
-	0 - 属于非侮辱类
-	1 - 属于侮辱类
-"""
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    """
+    朴素贝叶斯分类器分类函数
+
+    Args:
+        vec2Classify: 待分类的词条数组
+        p0Vec: 非侮辱类的条件概率数组
+        p1Vec: 侮辱类的条件概率数组
+        pClass1: 文档属于侮辱类的概率
+
+    Returns:
+        0: 属于非侮辱类
+        1: 属于侮辱类
+    """
     p1 = sum(vec2Classify * p1Vec) + np.log(pClass1) # 对应元素相乘。logA * B = logA + logB，所以这里加上log(pClass1)
     p0 = sum(vec2Classify * p0Vec) + np.log(1.0 - pClass1)
     if p1 > p0:
@@ -103,19 +115,31 @@ def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
         return 0
 
 
-"""
-函数说明:接收一个大字符串并将其解析为字符串列表
-"""
-def textParse(bigString): # 将字符串转换为字符列表
+def textParse(bigString):
+    """
+    接收一个大字符串并将其解析为字符串列表
+
+    Args:
+        bigString: 字符串
+
+    Returns:
+        字符串列表
+    """
     # 使用\W 或者\W+ 都可以将字符数字串分割开，产生的空字符将会在后面的列表推导式中过滤掉
     listOfTokens = re.split(r'\W+', bigString) # 将特殊符号作为切分标志进行字符串切分，即非字母、非数字
     return [tok.lower() for tok in listOfTokens if len(tok) > 2] # 除了单个字母，例如大写的I，其它单词变成小写
 
 
-"""
-函数说明:测试朴素贝叶斯分类器
-"""
 def spamTest():
+    """
+    测试朴素贝叶斯分类器
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     docList = []; classList = []; fullText = []
     
     for i in range(1, 26): # 遍历25个txt文件
