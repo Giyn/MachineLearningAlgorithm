@@ -10,7 +10,7 @@
 
 ​		下图给出了 $k$ 近邻分类器的一个示意图。显然，$k$ 是一个重要参数，当 $k$ 取不同值时，分类结果会有显著不同。另一方面，若采用不同的距离计算方式，则找出的“近邻”可能有显著差别，从而也会导致分类结果有显著不同。
 
-![k近邻分类器示意图.虚线显示出等距线;测试样本在k=1或k=5时被判别为正例,k=3时被判别为反例](../../Pictures/KNN/k%E8%BF%91%E9%82%BB%E5%88%86%E7%B1%BB%E5%99%A8%E7%A4%BA%E6%84%8F%E5%9B%BE.%E8%99%9A%E7%BA%BF%E6%98%BE%E7%A4%BA%E5%87%BA%E7%AD%89%E8%B7%9D%E7%BA%BF;%E6%B5%8B%E8%AF%95%E6%A0%B7%E6%9C%AC%E5%9C%A8k=1%E6%88%96k=5%E6%97%B6%E8%A2%AB%E5%88%A4%E5%88%AB%E4%B8%BA%E6%AD%A3%E4%BE%8B,k=3%E6%97%B6%E8%A2%AB%E5%88%A4%E5%88%AB%E4%B8%BA%E5%8F%8D%E4%BE%8B.png)
+![k近邻分类器示意图.虚线显示出等距线;测试样本在k=1或k=5时被判别为正例,k=3时被判别为反例.png](https://github.com/Giyn/QG2020SummerTraining/blob/master/Pictures/KNN/k%E8%BF%91%E9%82%BB%E5%88%86%E7%B1%BB%E5%99%A8%E7%A4%BA%E6%84%8F%E5%9B%BE.%E8%99%9A%E7%BA%BF%E6%98%BE%E7%A4%BA%E5%87%BA%E7%AD%89%E8%B7%9D%E7%BA%BF;%E6%B5%8B%E8%AF%95%E6%A0%B7%E6%9C%AC%E5%9C%A8k=1%E6%88%96k=5%E6%97%B6%E8%A2%AB%E5%88%A4%E5%88%AB%E4%B8%BA%E6%AD%A3%E4%BE%8B,k=3%E6%97%B6%E8%A2%AB%E5%88%A4%E5%88%AB%E4%B8%BA%E5%8F%8D%E4%BE%8B.png?raw=true)
 
 ​		暂且假设距离计算是“恰当”的，即能够恰当地找出 $k$ 个近邻，我们来对“最近邻分类器” ($1NN$，即 $k=1$) 在二分类问题上的性能做一个简单的讨论。
 
@@ -58,7 +58,7 @@ $$
 
 ​		缓解维数灾难的一个重要途径是降维 (dimension reduction)，亦称“维数约简”，即通过某种数学变换将原始高维属性空间转变为一个低维“子空间”(subspace), 在这个子空间中样本密度大幅提高，距离计算也变得更为容易.为什么能进行降维？这是因为在很多时候，人们观测或收集到的数据样本虽是高维的，但与学习任务密切相关的也许仅是某个低维分布，即高维空间中的一个低维“ 嵌入” (embedding)。下图给出了一个直观的例子。原始高维空间中的样本点，在这个低维嵌入子空间中更容易进行学习。
 
-![低维嵌入示意图](../../Pictures/KNN/%E4%BD%8E%E7%BB%B4%E5%B5%8C%E5%85%A5%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
+![低维嵌入示意图.png](https://github.com/Giyn/QG2020SummerTraining/blob/master/Pictures/KNN/%E4%BD%8E%E7%BB%B4%E5%B5%8C%E5%85%A5%E7%A4%BA%E6%84%8F%E5%9B%BE.png?raw=true)
 
 ​		若要求原始空间中样本之间的距离在低维空间中得以保持，如上图所示，即得到“多维缩放” (Multiple Dimensional Scaling，简称 $MDS$ ) 这样一种经典的降维方法。下面做一个简单的介绍。
 ​		假定 $m$ 个样本在原始空间的距离矩阵为 $D∈\mathbb{R}^{m×m}$，其第 $i$ 行 $j$ 列的元素 $dist_{ij}$ 为样本 $x_i$ 到 $x_j$ 的距离。我们的目标是获得样本在 $d'$ 维空间的表示 $Z∈\mathbb{R}^{d'×m},d'≤d$，且任意两个样本在 $d'$ 维空间中的欧氏距离等于原始空间中的距离，即 $||z_i-z_j||=dist_{ij}$。
@@ -114,7 +114,7 @@ Z=\tilde{\Lambda}^{1/2}\tilde{Ⅴ}^T∈\mathbb{R}^{d'×m}\,\,.\tag{12}
 $$
 下图给出了 $MDS$ 算法的描述：
 
-![MDS算法](../../Pictures/KNN/MDS%E7%AE%97%E6%B3%95.png)
+![MDS算法.png](https://github.com/Giyn/QG2020SummerTraining/blob/master/Pictures/KNN/MDS%E7%AE%97%E6%B3%95.png?raw=true)
 
 ​		一般来说，欲获得低维子空间，最简单的是对原始高维空间进行线性变换。给定 $d$ 维空间中的样本 $X=(x_1,x_2,...,x_m)∈\mathbb{R}^{d×m}$，变换之后得到 $d'≤d$ 维空间中的样本
 $$
